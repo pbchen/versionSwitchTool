@@ -1,0 +1,5 @@
+#RewriteEngine on;
+
+# Rewrite 系统规则请勿修改
+rewrite ^([a-zA-Z]+)$ $1.php last; 
+rewrite ^nginx/([a-zA-Z]+)/([a-zA-Z]+)$  nginx/index.php?service=$1&func=$2 last;
