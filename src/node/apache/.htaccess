@@ -1,5 +1,32 @@
-RewriteEngine on
+RewriteEngine On
 
-# Rewrite 系统规则请勿修改
-RewriteRule ^([a-zA-Z]+)$ $1.php [QSA,L] 
-RewriteRule ^([a-zA-Z]+)/([a-zA-Z]+)$  index.php?service=$1&func=$2 [QSA,L]
+#0. 特殊目录
+RewriteCond %{REQUEST_URI} !=/favicon.ico
+
+#1. 用户使用二级目录访问或者子域名访问
+#非二级目录选择版本
+RewriteCond %{REQUEST_URI} !^/\d+/
+#多级域名选择版本
+RewriteCond %{HTTP_HOST} ^(\d+)\.(.*)$
+#使用子域名选择版本
+RewriteRule ^[^(\d+)].*$|^$ %1/$0 [L]
+
+#2. 有配置Cookie的用户，根据用户Cookie来选择版本
+#二级目录选择版本
+RewriteCond %{REQUEST_URI} !^/\d+/
+#多级域名选择版本
+RewriteCond %{HTTP_HOST} !^\d+\..*
+RewriteCond %{HTTP_COOKIE} version=(\d+) [NC]
+RewriteRule ^[^(\d+)].*$|^$ %1/$0 [L]
+
+#3. 没有配置Cookie，则执行默认规则
+#二级目录选择版本
+RewriteCond %{REQUEST_URI} !^/\d+/
+#多级域名选择版本
+RewriteCond %{HTTP_HOST} !^\d+\..*
+RewriteCond %{HTTP_COOKIE} !^.*version=.*$ [NC]
+#========以下注释一定要存在，是版本切换的位置识别符==========
+#-version-control-start
+
+RewriteRule ^[^(\d+)].*$|^$ 2/$0
+#-version-control-end
